@@ -16,15 +16,9 @@ import sqlalchemy as sa
 ####tabla Vacas###########
 cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;') #Server=.\DESCORCIA
 
-query = '''SELECT distinct si.ID IDsire
-	 , si.Active Active
-	 , si.IDOfficial IDOfficial
-    , si.AINumber AINumber
-    , si.LongName Nombre_Largo
-    , si.Registration Registro
-    , si.Breed Raza
-    , si.Discontinued Fecha_descontinuado
-  FROM [RECODO].[dbo].[Sires] si;'''
+query = '''SELECT distinct si.ID IDsire, si.Active Active, si.IDOfficial IDOfficial, si.AINumber AINumber, 
+        si.LongName Nombre_Largo, si.Registration Registro, si.Breed Raza, si.Discontinued Fecha_descontinuado,
+        FROM [RECODO].[dbo].[Sires] si;'''
   
  
 sire = pd.read_sql(query, cnxn)

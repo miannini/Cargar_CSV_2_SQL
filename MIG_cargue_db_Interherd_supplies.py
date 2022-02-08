@@ -14,61 +14,35 @@ import pyodbc
 import sqlalchemy as sa
 
 ####tabla Vacas###########
-cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;') #Server=.\DESCORCIA
+cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;')
 ### suministros
-query = '''SELECT distinct su.ID IDsuministro
-	 , su.Code Code
-	 , su.Name Nombre
-    , su.Unit Unidad
-    , su.DefaultValue Valor_Default
-    , su.Sire Sire
-    , su.Supplier Proveedor
-    , su.Discontinued Fecha_descontinuado
-  FROM [RECODO].[dbo].[Supplies] su;'''
+query = '''SELECT distinct su.ID IDsuministro, su.Code Code, su.Name Nombre, su.Unit Unidad, su.DefaultValue Valor_Default,
+        su.Sire Sire, su.Supplier Proveedor, su.Discontinued Fecha_descontinuado 
+        FROM [RECODO].[dbo].[Supplies] su;'''
 supply = pd.read_sql(query, cnxn)
 supply.replace(r'^\s*$', np.nan, regex=True, inplace=True)
 ### proveedores
-query2 = '''SELECT distinct su.ID IDproveedor
-	 , su.Code Code
-	 , su.Name Nombre
-    , su.Tel Telefono
-    , su.Email email
-    , su.Contact contacto
-    , su.PostalCorr PostCode
-    , su.Discontinued Fecha_descontinuado
-  FROM [RECODO].[dbo].[Suppliers] su;'''
+query2 = '''SELECT distinct su.ID IDproveedor, su.Code Code, su.Name Nombre, su.Tel Telefono, su.Email email,
+         su.Contact contacto, su.PostalCorr PostCode, su.Discontinued Fecha_descontinuado
+         FROM [RECODO].[dbo].[Suppliers] su;'''
 supplier = pd.read_sql(query2, cnxn)
 supplier.replace(r'^\s*$', np.nan, regex=True, inplace=True)
 ### tipo-suministros
-query3 = '''SELECT distinct su.ID IDClase_sumi
-	 , su.Code Code
-	 , su.Name Nombre
-    , su.Semen Semen
-    , su.InMEdReg Medicina
-    , su.Feed Alimento
-    , su.Discontinued Fecha_descontinuado
-  FROM [RECODO].[dbo].[SupplyClasses] su;'''
+query3 = '''SELECT distinct su.ID IDClase_sumi, su.Code Code, su.Name Nombre, su.Semen Semen, su.InMEdReg Medicina,
+        su.Feed Alimento, su.Discontinued Fecha_descontinuado 
+        FROM [RECODO].[dbo].[SupplyClasses] su;'''
 supply_classes = pd.read_sql(query3, cnxn)
 supply_classes.replace(r'^\s*$', np.nan, regex=True, inplace=True)
 ### mapa suministros-tipo de clase
-query4 = '''SELECT distinct su.ID ID
-	 , su.Supply ID_Suministro
-	 , su.Class ID_Clase
-    , su.Discontinued Fecha_descontinuado
-  FROM [RECODO].[dbo].[SuppSuCl] su;'''
+query4 = '''SELECT distinct su.ID ID, su.Supply ID_Suministro, su.Class ID_Clase, su.Discontinued Fecha_descontinuado,
+        FROM [RECODO].[dbo].[SuppSuCl] su;'''
 map_clas_sup = pd.read_sql(query4, cnxn)
 map_clas_sup.replace(r'^\s*$', np.nan, regex=True, inplace=True)
 ### origen de suministros
-query5 = '''SELECT distinct su.ID ID
-	 , su.Supply ID_Suministro
-	 , su.Supplier ID_proveedor
-    , sl.Units Unidades
-    , sl.UnitCost Costo_unitaro
-    , sl.OrigDate Fecha_ingreso
-    , sl.Discontinued1 Fecha_descontinuado
-    , sl.WorkBal Balance
-  FROM [RECODO].[dbo].[SuppLotsOrig] su
-  INNER JOIN [RECODO].[dbo].[SuppLots] sl ON su.ID=sl.OrigLot'''
+query5 = '''SELECT distinct su.ID ID, su.Supply ID_Suministro, su.Supplier ID_proveedor, sl.Units Unidades,
+        sl.UnitCost Costo_unitaro, sl.OrigDate Fecha_ingreso, sl.Discontinued1 Fecha_descontinuado, sl.WorkBal Balance
+        FROM [RECODO].[dbo].[SuppLotsOrig] su
+        INNER JOIN [RECODO].[dbo].[SuppLots] sl ON su.ID=sl.OrigLot'''
 sup_origen = pd.read_sql(query5, cnxn)
 sup_origen['ID_proveedor'].replace(0, np.nan, regex=False, inplace=True)
 sup_origen['Costo_unitaro'].replace(0, np.nan, regex=False, inplace=True)
@@ -80,16 +54,9 @@ sup_origen['presentacion'] = np.nan
 #agregar fecha_vencimiento, numero_lote, numero_factura, presentacion (tipo unidad)
 
 ### uso de suministros
-query6 = '''SELECT distinct su.ID ID
-	 , su.Lot ID_Lote_origen
-	 , su.Supply ID_suministro
-    , su.Units Unidades
-    , su.DestType Tipo_destino
-    , su.Date Fecha
-    , su.UnitCost Costo_unitaro
-    , su.Animal ID_VACA
-    , su.Event ID_ACTIVIDAD
-  FROM [RECODO].[dbo].[SuppLotsDest] su'''
+query6 = '''SELECT distinct su.ID ID, su.Lot ID_Lote_origen, su.Supply ID_suministro, su.Units Unidades, 
+        su.DestType Tipo_destino, su.Date Fecha, su.UnitCost Costo_unitaro, su.Animal ID_VACA, su.Event ID_ACTIVIDAD
+        FROM [RECODO].[dbo].[SuppLotsDest] su'''
 sup_destino = pd.read_sql(query6, cnxn)
 #mapeo de actividades desde CSVs
 servicios = pd.read_csv("D:/M4A/DB_RECODO/mapeo_actividades_vacas_servicios.csv")
@@ -97,7 +64,8 @@ diag_pre = pd.read_csv("D:/M4A/DB_RECODO/mapeo_actividades_vacas_diagpre.csv")
 partos = pd.read_csv("D:/M4A/DB_RECODO/mapeo_actividades_vacas_partos.csv")
 #falta operation_type 53, 73, 78, 18, purgas, vacunas, etc
 lista_cols = ['ID_VACA','ID_Actividad_x','ID_Actividad_y']
-actividades_map = pd.concat([servicios.loc[:,lista_cols], diag_pre.loc[:,lista_cols], partos.loc[:,lista_cols]], ignore_index=True)
+actividades_map = pd.concat([servicios.loc[:,lista_cols], diag_pre.loc[:,lista_cols], partos.loc[:,lista_cols]],
+                            ignore_index=True)
 
 sup_destino_upload = pd.merge(sup_destino, actividades_map, how="left",left_on="ID_ACTIVIDAD",right_on="ID_Actividad_x")
 sup_destino_upload.drop(['ID_VACA_y','ID_Actividad_x'], axis=1, inplace=True)

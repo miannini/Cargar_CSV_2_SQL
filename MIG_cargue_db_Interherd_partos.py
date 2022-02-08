@@ -16,31 +16,20 @@ import sqlalchemy as sa
 ####tabla Vacas###########
 cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;') #Server=.\DESCORCIA
 
-query = '''SELECT distinct pa.ID IDparto
-	 , pa.Animal ID_VACA
-	 , pa.Number Numero_Parto
-     , pa.Sire Sire
-     , pa.OpPar ID_Actividad
-     , NULL Asistida   
-  FROM [RECODO].[dbo].[Parities] pa;'''
+query = '''SELECT distinct pa.ID IDparto, pa.Animal ID_VACA, pa.Number Numero_Parto, pa.Sire Sire, 
+        pa.OpPar ID_Actividad, NULL Asistida   
+        FROM [RECODO].[dbo].[Parities] pa;'''
   
  
 partos = pd.read_sql(query, cnxn)
 
-query2 = '''SELECT distinct op.ID ID_Actividad
-	 , op.Animal ID_VACA
-     , 1 ID_TipoOperacion
-     , 1 ID_Resultado
-     , 35 ID_OPERARIO
-     , case op.OperationType
-     when 15 then 1
-     when 90 then 11
-     else 0 end ID_Categoria
-     , op.Date Fecha
-     , op.Remarks Comentario
-     , NULL Fecha_programada 
-  FROM [RECODO].[dbo].[Operations] op
-  WHERE op.[OperationType] in (15, 90) AND op.[Done]=1;''' #15 is parto, 90 lactoinduccion
+query2 = '''SELECT distinct op.ID ID_Actividad, op.Animal ID_VACA, 1 ID_TipoOperacion, 1 ID_Resultado, 35 ID_OPERARIO,
+    case op.OperationType   when 15 then 1 
+                            when 90 then 11
+                            else 0 end ID_Categoria,
+    op.Date Fecha, op.Remarks Comentario, NULL Fecha_programada 
+    FROM [RECODO].[dbo].[Operations] op
+    WHERE op.[OperationType] in (15, 90) AND op.[Done]=1;''' #15 is parto, 90 lactoinduccion
   
 act_partos = pd.read_sql(query2, cnxn)
 

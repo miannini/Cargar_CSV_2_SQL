@@ -112,8 +112,15 @@ full_seguimiento['lote_change'] = full_seguimiento['lote_id'] != full_seguimient
 full_seguimiento['actividad_change'] = (full_seguimiento['ACTIVIDAD'] == full_seguimiento['ACTIVIDAD'].shift(1)) #full_seguimiento['lote_change']==False and
 
 #funciones de pastorio    
-full_seguimiento['ultimo_pastoreo'], full_seguimiento['dias_sin_pastoreo'], full_seguimiento['dias_de_pastoreo'],full_seguimiento['ultimo_animales']=  full_seguimiento.apply(lambda row: Tools.actividades(row['lote_change'],row['ACTIVIDAD'],row['NUMERO ANIMALES'],row['date'],row['actividad_change']), axis=1, result_type='expand').T.values    
-# using dictionary to convert specific columns 
+full_seguimiento['ultimo_pastoreo'], full_seguimiento['dias_sin_pastoreo'], full_seguimiento['dias_de_pastoreo'],\
+full_seguimiento['ultimo_animales']=  full_seguimiento.apply(lambda row: Tools.actividades(row['lote_change'],
+                                                                                           row['ACTIVIDAD'],
+                                                                                           row['NUMERO ANIMALES'],
+                                                                                           row['date'],
+                                                                                           row['actividad_change']),
+                                                             axis=1, result_type='expand').T.values
+
+# using dictionary to convert specific columns
 convert_dict = {
                 'dias_sin_pastoreo': int,
                 'dias_de_pastoreo': int, 
@@ -133,7 +140,12 @@ full_seguimiento.loc[full_seguimiento['ultimo_pastoreo'] == 0, 'ultimo_pastoreo'
 full_seguimiento.loc[full_seguimiento['ultimo_animales'] == 0, 'ultimo_animales'] = np.nan
 #running avg - group by namee, actividad == pastoreo (unmero animales 
 #fill na (pad) - group by (name) -> ultimo pastoreo, dias de pastoreo, numero animales , forraje
-full_seguimiento.loc[:,['name_c','TIPO DE FORRAJE','ultimo_pastoreo','ultimo_animales','dias_de_pastoreo','dias_sin_pastoreo']] = full_seguimiento.loc[:,['name_c','TIPO DE FORRAJE','ultimo_pastoreo','ultimo_animales','dias_de_pastoreo','dias_sin_pastoreo']].groupby('name_c').apply(lambda group: group.fillna(method='pad'))
+full_seguimiento.loc[:,['name_c','TIPO DE FORRAJE','ultimo_pastoreo',
+                        'ultimo_animales','dias_de_pastoreo','dias_sin_pastoreo']] = \
+    full_seguimiento.loc[:,['name_c','TIPO DE FORRAJE','ultimo_pastoreo',
+                            'ultimo_animales','dias_de_pastoreo','dias_sin_pastoreo']].\
+        groupby('name_c').apply(lambda group: group.fillna(method='pad'))
+
 del(con_pasto, sin_pasto)
 ####################################################################################################
 
@@ -142,7 +154,12 @@ del(con_pasto, sin_pasto)
 podria ser mas rapida y flexible la funcion
 
 '''
-full_seguimiento['dias_sin_fumigada'], full_seguimiento['dias_sin_siembra'],full_seguimiento['dias_sin_renovada'],full_seguimiento['dias_sin_desbrosada'],full_seguimiento['dias_sin_abonada'], full_seguimiento['dias_sin_enmienda'], full_seguimiento['dias_sin_rotobo'] = full_seguimiento.apply(lambda row: Tools.otras_actividades(row['lote_change'],row['ACTIVIDAD'],lista_actividades), axis=1, result_type='expand').T.values    
+full_seguimiento['dias_sin_fumigada'], full_seguimiento['dias_sin_siembra'],full_seguimiento['dias_sin_renovada'],\
+full_seguimiento['dias_sin_desbrosada'],full_seguimiento['dias_sin_abonada'], full_seguimiento['dias_sin_enmienda'], \
+full_seguimiento['dias_sin_rotobo'] = full_seguimiento.\
+    apply(lambda row: Tools.otras_actividades(row['lote_change'],
+                                              row['ACTIVIDAD'],lista_actividades),
+          axis=1, result_type='expand').T.values
 
 sin_fumigada = Tools.run_sum_reset(full_seguimiento['dias_sin_fumigada'],1)
 sin_siembra = Tools.run_sum_reset(full_seguimiento['dias_sin_siembra'],1)
@@ -152,7 +169,8 @@ sin_abonada = Tools.run_sum_reset(full_seguimiento['dias_sin_abonada'],1)
 sin_enmienda = Tools.run_sum_reset(full_seguimiento['dias_sin_enmienda'],1)
 sin_rotobo = Tools.run_sum_reset(full_seguimiento['dias_sin_rotobo'],1)
 
-full_seguimiento.drop(columns=['dias_sin_fumigada', 'dias_sin_siembra', 'dias_sin_renovada','dias_sin_desbrosada','dias_sin_abonada','dias_sin_enmienda','dias_sin_rotobo'], inplace=True)
+full_seguimiento.drop(columns=['dias_sin_fumigada', 'dias_sin_siembra', 'dias_sin_renovada','dias_sin_desbrosada',
+                               'dias_sin_abonada','dias_sin_enmienda','dias_sin_rotobo'], inplace=True)
 full_seguimiento = pd.concat([full_seguimiento,sin_fumigada,sin_siembra,sin_renovada,sin_desbrosada,sin_abonada,sin_enmienda,sin_rotobo], axis=1)
 #full_seguimiento.drop(columns=['lote_change','actividad_change'], inplace=True)
 del(sin_fumigada,sin_siembra,sin_renovada,sin_desbrosada,sin_abonada,sin_enmienda,sin_rotobo)

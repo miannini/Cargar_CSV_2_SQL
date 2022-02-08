@@ -16,44 +16,35 @@ import sqlalchemy as sa
 ####tabla Vacas###########
 cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;') #Server=.\DESCORCIA
 
-query = '''SELECT distinct pd.ID IDdiagpre
-	 , pd.Animal ID_VACA
-	 , pd.Result ID_Resultado
-    , pd.Days Dias
-    , pd.Service ID_servicio
-    , pd.OpID ID_Actividad
-  FROM [RECODO].[dbo].[PregDiags] pd;'''
+query = '''SELECT distinct pd.ID IDdiagpre, pd.Animal ID_VACA, pd.Result ID_Resultado, pd.Days Dias, 
+        pd.Service ID_servicio, pd.OpID ID_Actividad
+        FROM [RECODO].[dbo].[PregDiags] pd;'''
   
  
 diagpre = pd.read_sql(query, cnxn)
 
-query2 = '''SELECT distinct op.ID ID_Actividad
-	 , op.Animal ID_VACA
-     , case op.OperationType
-     when 91 then 7
-     when 92 then 4
-     when 93 then 5
-     when 96 then 3
-     when 101 then 3
-     when 102 then 5
-     else 6 end ID_TipoOperacion
-     , op.Result ID_Resultado
-     , case op.Officer
-     when 3 then 33
-     when 7 then 25
-     when 12 then 36
-     when 13 then 9
-     when 15 then 9
-     when 17 then 7
-     when 19 then 2
-     when 20 then 23
-     else 35 end ID_OPERARIO
-     , 18 ID_Categoria 
-     , op.Date Fecha
-     , op.Remarks Comentario
-     , NULL Fecha_programada 
-  FROM [RECODO].[dbo].[Operations] op
-  WHERE op.[OperationType] in (91,92,93,96,101,102,106) AND op.[Done]=1;'''
+query2 = '''SELECT distinct op.ID ID_Actividad, op.Animal ID_VACA, 
+            case op.OperationType
+                when 91 then 7
+                when 92 then 4
+                when 93 then 5
+                when 96 then 3
+                when 101 then 3
+                when 102 then 5
+                else 6 end ID_TipoOperacion,
+            op.Result ID_Resultado, 
+            case op.Officer
+                when 3 then 33
+                when 7 then 25
+                when 12 then 36
+                when 13 then 9
+                when 15 then 9
+                when 17 then 7
+                when 19 then 2
+                when 20 then 23
+                else 35 end ID_OPERARIO, 18 ID_Categoria, op.Date Fecha, op.Remarks Comentario, NULL Fecha_programada 
+        FROM [RECODO].[dbo].[Operations] op
+        WHERE op.[OperationType] in (91,92,93,96,101,102,106) AND op.[Done]=1;'''
   
 act_diapre = pd.read_sql(query2, cnxn)
 

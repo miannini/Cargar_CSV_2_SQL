@@ -16,26 +16,16 @@ import sqlalchemy as sa
 ####tabla Vacas###########
 cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;') #Server=.\DESCORCIA
 
-query = '''SELECT distinct pe.ID IDpeso
-	 , pe.Animal ID_VACA
-	 , pe.Weight Peso
-    , pe.OpID ID_Actividad 
-  FROM [RECODO].[dbo].[Weights] pe;'''
+query = '''SELECT distinct pe.ID IDpeso, pe.Animal ID_VACA, pe.Weight Peso, pe.OpID ID_Actividad 
+        FROM [RECODO].[dbo].[Weights] pe;'''
   
  
 pesos = pd.read_sql(query, cnxn)
 
-query2 = '''SELECT distinct op.ID ID_Actividad
-	 , op.Animal ID_VACA
-     , 10 ID_TipoOperacion
-     , 1 ID_Resultado
-     , 35 ID_OPERARIO
-     , 1 ID_Categoria 
-     , op.Date Fecha
-     , op.Remarks Comentario
-     , NULL Fecha_programada 
-  FROM [RECODO].[dbo].[Operations] op
-  WHERE op.[OperationType] in (23) AND op.[Done]=1;''' #15 is parto, 90 lactoinduccion
+query2 = '''SELECT distinct op.ID ID_Actividad, op.Animal ID_VACA, 10 ID_TipoOperacion, 1 ID_Resultado, 35 ID_OPERARIO,
+        1 ID_Categoria, op.Date Fecha, op.Remarks Comentario, NULL Fecha_programada
+        FROM [RECODO].[dbo].[Operations] op
+        WHERE op.[OperationType] in (23) AND op.[Done]=1;''' #15 is parto, 90 lactoinduccion
   
 act_pesos = pd.read_sql(query2, cnxn)
 

@@ -18,35 +18,25 @@ esedb_file.close()
 ####tabla Vacas###########
 cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;')
 
-query = '''select [ID] ID_VACA
-	  ,1 ID_CLIENTE
-	  ,0 ID_FINCA
-	  ,[ElectronicID]
-	  ,[Name] Nombre_Vaca
-	  ,[Breed]-101 Raza
-	  ,[Sex] Sexo
-	  ,[DamB] VacaMadre
-	  ,[DamParity] IDparto
-      ,[OrigDate] FechaRegistro
-      ,CASE 
-		WHEN [OrigType] <= 0 THEN [OrigType]+2
-		WHEN [OrigType] > 0 THEN [OrigType]+1
-		END IDTipoOrigen
-	  ,[BirthDate] FechaNacimiento
-	  ,CASE 
-		WHEN [Fate] <= 0 THEN [Fate]+2
-		WHEN [Fate] > 0 THEN [Fate]+1
-		END IDTipoSalida
-      ,[FateDate] FechaSalida
-      ,[Sire]
-  FROM [RECODO].[dbo].[Animals]'''
+query = '''select [ID] ID_VACA, 1 ID_CLIENTE, 0 ID_FINCA, [ElectronicID], [Name] Nombre_Vaca, [Breed]-101 Raza, 
+        [Sex] Sexo, [DamB] VacaMadre, [DamParity] IDparto, [OrigDate] FechaRegistro, 
+        CASE 
+            WHEN [OrigType] <= 0 THEN [OrigType]+2
+            WHEN [OrigType] > 0 THEN [OrigType]+1
+            END IDTipoOrigen, [BirthDate] FechaNacimiento, 
+        CASE 
+            WHEN [Fate] <= 0 THEN [Fate]+2
+            WHEN [Fate] > 0 THEN [Fate]+1
+            END IDTipoSalida, [FateDate] FechaSalida, [Sire]
+        FROM [RECODO].[dbo].[Animals]'''
   
 #      ,1 Estado
 #      ,1 Estado_Final
 vacas = pd.read_sql(query, cnxn)
 
 vacas_excel = pd.read_csv('../DB_interherd/todos_los_datos.csv')
-cols = ['ID', 'Raza', 'Sexo/ tipo', 'Padre' , 'Madre gen.','Madre ', 'Nacimiento', 'Nombre', 'Id. Electr?ica', 'Toro ?t. parto']
+cols = ['ID', 'Raza', 'Sexo/ tipo', 'Padre' , 'Madre gen.','Madre ', 'Nacimiento', 'Nombre', 'Id. Electr?ica',
+        'Toro ?t. parto']
 vacas_excel = vacas_excel[cols]
 #vacas_excel.ID_VACA = vacas_excel.ID_VACA.map(lambda x: 1 if x==0 else x)
 #vacas_excel['Id. Electr?ica'] = vacas_excel['Id. Electr?ica'].map(lambda x: None if x == '' else x)
@@ -55,11 +45,7 @@ vacas_excel = vacas_excel[cols]
 ''' no se usa
 import mysql.connector
 
-db_connection = mysql.connector.connect(
-  	host="34.73.96.30",
-  	user="m4a.DA",
-  	passwd="m4a2020"
-    )
+db_connection = mysql.connector.connect(host="34.73.96.30", user="m4a.DA", passwd="m4a2020")
 '''
 import sqlalchemy as sa
 engine = sa.create_engine("mysql+pymysql://" + "m4a.DA" + ":" + "m4a2020" + "@" + "35.229.36.251" + "/" + "lv_test")
@@ -103,7 +89,8 @@ mastitis['ID_TipoOperacion'] = 9
 mastitis['ID_Resultado'] = 34
 mastitis['ID_Categoria'] = 1
 
-mastitis_actividad = mastitis.loc[:,['ID_VACA','ID_TipoOperacion','ID_Resultado','ID_OPERARIO','ID_Categoria', 'Fecha', 'Comentario']]
+mastitis_actividad = mastitis.loc[:,['ID_VACA','ID_TipoOperacion','ID_Resultado','ID_OPERARIO','ID_Categoria',
+                                     'Fecha', 'Comentario']]
 mastitis_actividad.dropna(subset=['ID_VACA'], inplace=True)
 mastitis_actividad.drop_duplicates(inplace=True)
 
@@ -117,9 +104,13 @@ actDB = pd.read_sql(sql, engine)
 
 #transform date, create key, join and get new data
 actDB['fecha_2'] = actDB['Fecha'].dt.strftime('%m/%d/%Y')
-actDB['key'] = actDB['fecha_2'].astype(str) +'_'+ actDB['ID_VACA'].astype(int).astype(str)  +'_'+ actDB['ID_TipoOperacion'].astype(int).astype(str) 
+actDB['key'] = actDB['fecha_2'].astype(str) +'_'+ actDB['ID_VACA'].astype(int).astype(str)  +'_'+ \
+               actDB['ID_TipoOperacion'].astype(int).astype(str)
+
 mastitis_actividad['Fecha'] = pd.to_datetime(mastitis_actividad['Fecha']).dt.strftime('%m/%d/%Y')
-mastitis_actividad['key'] = mastitis_actividad['Fecha'].astype(str) +'_'+ mastitis_actividad['ID_VACA'].astype(int).astype(str)  +'_'+ mastitis_actividad['ID_TipoOperacion'].astype(int).astype(str) 
+mastitis_actividad['key'] = mastitis_actividad['Fecha'].astype(str) +'_'+ \
+                            mastitis_actividad['ID_VACA'].astype(int).astype(str)  +'_'+ \
+                            mastitis_actividad['ID_TipoOperacion'].astype(int).astype(str)
 #merged data
 new_mastitis = pd.merge(mastitis_actividad, actDB.loc[:,['key','ID_Actividad']], how='outer', on='key', indicator=True)
 missing_in_csv = new_mastitis[new_mastitis['_merge'] == 'right_only']
@@ -156,7 +147,9 @@ mastitis.dropna(subset=['ID_VACA'], inplace=True)
 mastitis['key'] = mastitis['Fecha'].astype(str) +'_'+ mastitis['ID_VACA'].astype(int).astype(str)
 
 #union de nuevo DB actividades con calificacion mastitis
-mastitisDB = pd.merge(actDB2.loc[:,['key','ID_Actividad']],mastitis.loc[:,['AI', 'AD', 'PI', 'PD','Chequeo_revision' , 'Ubre_sana', 'Calificacion', 'GAP','key']], how='left', on='key')
+mastitisDB = pd.merge(actDB2.loc[:,['key','ID_Actividad']],mastitis.loc[:,['AI', 'AD', 'PI', 'PD','Chequeo_revision' ,
+                                                                           'Ubre_sana', 'Calificacion', 'GAP','key']],
+                      how='left', on='key')
 
 #percent string to float
 def p2f(x):
@@ -176,7 +169,8 @@ mastitisDB.to_sql('Mastitis', engine,  if_exists='append', index=False)
 ##Traslado vacas
 traslados_excel = pd.read_csv('../DB_interherd/traslado_vacas_V2.csv')
 
-traslados_excel.Grupo.replace({'NI':'9', 'CF':'8', 'JCAL': '4', 'R 2':'2', 'R 1':'1', 'R 3':'3', 'PARAI':'5', 'HOR.1':'6', 'HO.JU': '7'}, inplace = True)
+traslados_excel.Grupo.replace({'NI':'9', 'CF':'8', 'JCAL': '4', 'R 2':'2', 'R 1':'1', 'R 3':'3', 'PARAI':'5',
+                               'HOR.1':'6', 'HO.JU': '7'}, inplace = True)
 traslados_excel.Grupo = traslados_excel.Grupo.astype(int)
 traslados_excel = traslados_excel[1:]
 traslados_excel.ID = traslados_excel.ID.str.strip()
@@ -216,17 +210,21 @@ vacas_missing2['Nombre'].fillna(vacas_missing2['ID'], inplace=True)
 #transform raza, sex, format date, id electronica a float no e+
 vacas_missing2.drop(['Grupo','ID','Fecha_Traslado','ID_VACA','Nombre_Vaca','duplicados','_merge'], axis=1, inplace=True)
 vacas_missing2['Madre '].fillna(vacas_missing2['Madre gen.'], inplace=True) 
-vacas_missing2.rename(columns={'Sexo/ tipo': 'Sexo', 'Madre ': 'VacaMadre', 'Id. Electr?ica':'ElectronicID', 'Nacimiento':'FechaNacimiento', 'Padre':'Sire', 'Nombre':'Nombre_Vaca', }, inplace=True)
+vacas_missing2.rename(columns={'Sexo/ tipo': 'Sexo', 'Madre ': 'VacaMadre', 'Id. Electr?ica':'ElectronicID',
+                               'Nacimiento':'FechaNacimiento', 'Padre':'Sire', 'Nombre':'Nombre_Vaca', }, inplace=True)
 vacas_missing2['ID_CLIENTE']=1
 vacas_missing2['IDTipoOrigen']=2
 vacas_missing2['IDTipoSalida']=2
 vacas_missing2['FechaRegistro']=pd.to_datetime("2021-04-25", format='%Y-%m-%d', errors='coerce')
 vacas_missing2['FechaNacimiento']=pd.to_datetime(vacas_missing2['FechaNacimiento'], format='%d/%m/%Y', errors='coerce')
-vacas_missing2.Raza.replace({'AN':'6', 'AY':'18', 'GY(50%) x HO(50%)': '3', 'HO':'2', 'HO(50%) x JE(50%)':'2', 'HO(75%) x GY(25%)':'2', 'HO(75%) x JE(25%)':'2','HO(88%) x GY(13%)':'2','HO(88%) x JE(13%)':'2' ,'HO(92%) x JE(8%)':'2', '??': '17'}, inplace = True)
+vacas_missing2.Raza.replace({'AN':'6', 'AY':'18', 'GY(50%) x HO(50%)': '3', 'HO':'2', 'HO(50%) x JE(50%)':'2',
+                             'HO(75%) x GY(25%)':'2', 'HO(75%) x JE(25%)':'2','HO(88%) x GY(13%)':'2',
+                             'HO(88%) x JE(13%)':'2' ,'HO(92%) x JE(8%)':'2', '??': '17'}, inplace = True)
 vacas_missing2['Sexo'].replace({'He:Rp':'1'}, inplace = True)
 
 #reorder columns
-cols = ['ID_CLIENTE', 'ElectronicID','Nombre_Vaca', 'Raza', 'Sexo', 'VacaMadre', 'FechaRegistro', 'IDTipoOrigen', 'FechaNacimiento', 'IDTipoSalida', 'Sire'] # 'IDparto','FechaSalida',
+cols = ['ID_CLIENTE', 'ElectronicID','Nombre_Vaca', 'Raza', 'Sexo', 'VacaMadre', 'FechaRegistro', 'IDTipoOrigen',
+        'FechaNacimiento', 'IDTipoSalida', 'Sire'] # 'IDparto','FechaSalida',
 vacas_missing2.drop(['Madre gen.','Toro ?t. parto'], axis=1, inplace=True)
 vacas_missing2 = vacas_missing2.reindex(columns=cols)
 

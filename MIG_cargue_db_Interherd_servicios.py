@@ -14,7 +14,7 @@ import pyodbc
 import sqlalchemy as sa
 
 ####tabla Vacas###########
-cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;') #Server=.\DESCORCIA
+cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Database=RECODO;Trusted_Connection=yes;')
 
 query = '''SELECT distinct se.ID IDservicio
 	 , se.Animal ID_VACA
@@ -84,9 +84,11 @@ actDB = pd.read_sql(sql, engine)
 
 #actualizar actividades local, para agregar ID de DB real
 act_serviciosDB = pd.concat([actDB.loc[:,['ID_Actividad']],act_servicios], 1)
-act_serviciosDB.set_axis(['ID_Actividad','Old_ID_Actividad','ID_VACA','ID_TipoOperacion','ID_Resultado','ID_OPERARIO','ID_Categoria','Fecha','Comentario','Fecha2'], axis='columns',inplace=True)
+act_serviciosDB.set_axis(['ID_Actividad','Old_ID_Actividad','ID_VACA','ID_TipoOperacion','ID_Resultado','ID_OPERARIO',
+                          'ID_Categoria','Fecha','Comentario','Fecha2'], axis='columns',inplace=True)
 
-servicios_to_upload = pd.merge(servicios,act_serviciosDB.loc[:,['ID_Actividad','Old_ID_Actividad']],how="left",left_on="ID_Actividad",right_on="Old_ID_Actividad")
+servicios_to_upload = pd.merge(servicios,act_serviciosDB.loc[:,['ID_Actividad','Old_ID_Actividad']],
+                               how="left",left_on="ID_Actividad",right_on="Old_ID_Actividad")
 #save a copy to future uses
 servicios_to_upload.to_csv("D:/M4A/DB_RECODO/mapeo_actividades_vacas_servicios.csv")
 #reorder columns

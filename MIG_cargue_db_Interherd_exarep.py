@@ -19,37 +19,26 @@ cnxn = pyodbc.connect(r'Driver=SQL Server;Server=LAPTOP-OVDQCMQI\SQLEXPRESS;Data
 engine = sa.create_engine("mysql+pymysql://" + "m4a.DA" + ":" + "m4a2020" + "@" + "35.229.36.251" + "/" + "lv_test")
 
 #query = 
-'''SELECT distinct pd.ID IDdiagpre
-	 , pd.Animal ID_VACA
-	 , pd.Result ID_Resultado
-    , pd.Days Dias
-    , pd.Service ID_servicio
-    , pd.OpID ID_Actividad
-  FROM [RECODO].[dbo].[PregDiags] pd;'''
+'''SELECT distinct pd.ID IDdiagpre, pd.Animal ID_VACA, pd.Result ID_Resultado, pd.Days Dias, pd.Service ID_servicio,
+    pd.OpID ID_Actividad
+    FROM [RECODO].[dbo].[PregDiags] pd;'''
   
  
 #exapre = pd.read_sql(query, cnxn)
 
-query2 = '''SELECT distinct op.ID ID_Actividad
-	 , op.Animal ID_VACA
-     , op.OperationType ID_TipoOperacion
-     , op.Result ID_Resultado
-     , case op.Officer
-     when 3 then 33
-     when 7 then 25
-     when 12 then 36
-     when 13 then 9
-     when 15 then 9
-     when 17 then 7
-     when 19 then 2
-     when 20 then 23
-     else 35 end ID_OPERARIO
-     , 1 ID_Categoria 
-     , op.Date Fecha
-     , op.Remarks Comentario
-     , NULL Fecha_programada 
-  FROM [RECODO].[dbo].[Operations] op
-  WHERE op.[OperationType] in (18,53,73,5,107,135,123,66,21,19,40,29,89,100,136,72,88,90,43,55,65,85) AND op.[Done]=1;'''
+query2 = '''SELECT distinct op.ID ID_Actividad, op.Animal ID_VACA, op.OperationType ID_TipoOperacion, 
+    op.Result ID_Resultado, case op.Officer
+             when 3 then 33
+             when 7 then 25
+             when 12 then 36
+             when 13 then 9
+             when 15 then 9
+             when 17 then 7
+             when 19 then 2
+             when 20 then 23
+             else 35 end ID_OPERARIO, 1 ID_Categoria, op.Date Fecha, op.Remarks Comentario, NULL Fecha_programada 
+    FROM [RECODO].[dbo].[Operations] op
+    WHERE op.[OperationType] in (18,53,73,5,107,135,123,66,21,19,40,29,89,100,136,72,88,90,43,55,65,85) AND op.[Done]=1;'''
   
 act_exarep = pd.read_sql(query2, cnxn)
 
